@@ -1,0 +1,27 @@
+  [project]
+   name = "neris-dashboards"
+   version = "0.1.0"
+   requires-python = ">=3.13"
+   dependencies = [
+       "dash>=3.2.0",
+       "dash-enterprise-libraries>=1.6.0",
+       "dash-bootstrap-components>=1.6.0",
+       "dash-leaflet>=1.0.15",
+       "plotly>=5.20",
+       "SQLAlchemy>=2.0",
+       "gunicorn>=23.0.0",
+       "flask-caching>=2.3.1",
+       "duckdb>=1.4.1",
+       "arcgis>=2.4.1",
+       "boto3>=1.38.25",
+   ]
+
+   [dependency-groups]
+   dev = ["ruff>=0.11.6", "pytest>=8.0.0", "pre-commit>=4.2.0",]
+
+   [tool.uv]
+   extra-index-url = ["https://dash.nerisdata.cloud/packages"]
+   index-strategy = "unsafe-best-match"
+
+   [tool.uv.workspace]
+   members = ["apps/*", "libs/neris-dash-common"]

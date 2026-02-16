@@ -1,0 +1,154 @@
+/* Custom CSS for Cornsacks Dashboard - DDK overrides */
+
+.chart-graph {
+    min-height: 500px;
+    width: 100%;
+    height: 500px;
+}
+
+.ddk-modal .chart-graph {
+    height: auto !important;
+    min-height: 60vh;
+    width: 100%;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card {
+    height: 120px !important;
+    min-height: 120px !important;
+    max-height: 120px !important;
+    padding: 10px !important;
+}
+
+/* Make room for custom headers in cards without DDK titles */
+.card-with-custom-header .ddk-card--header {
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+}
+
+.custom-card-header {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: inherit;
+}
+
+/* Position 'Zoom to points' button to the right of the +/- zoom buttons */
+.leaflet-top.leaflet-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.custom-map-control {
+    width: auto;
+    min-width: 30px;
+    height: 30px;
+    background-color: #fff;
+    border: 2px solid rgba(0,0,0,0.2);
+    background-clip: padding-box;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 12px;
+    margin-left: 10px !important;
+    margin-top: 5px !important;
+    padding: 0 8px !important;
+    font-weight: bold;
+    box-shadow: none;
+    pointer-events: auto; /* Re-enable clicks since parent has none */
+    white-space: nowrap;
+}
+
+.custom-map-control:hover {
+    background-color: #f4f4f4;
+}
+
+.custom-map-control:disabled {
+    display: none !important;
+}
+
+/* Expanding Address Dropdown */
+/* TODO: Help! Is all this really necessary to get the seachbar to work this way? */
+.expanding-address-dropdown {
+    width: 34px;
+    height: 34px;
+    transition: width 0.3s ease-in-out;
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23636efa' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 8px center;
+    border-radius: 4px;
+    border: 2px solid rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.expanding-address-dropdown:hover,
+.expanding-address-dropdown:focus-within {
+    width: 350px;
+    background-image: none;
+    overflow: visible;
+}
+
+/* Internal Select Overrides */
+.expanding-address-dropdown .Select-control {
+    height: 30px !important;
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Shared visibility logic for placeholder, value, and clear button */
+.expanding-address-dropdown .Select-placeholder,
+.expanding-address-dropdown .Select-value,
+.expanding-address-dropdown .Select-clear-zone {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.expanding-address-dropdown:hover .Select-placeholder,
+.expanding-address-dropdown:hover .Select-value,
+.expanding-address-dropdown:hover .Select-clear-zone,
+.expanding-address-dropdown:focus-within .Select-placeholder,
+.expanding-address-dropdown:focus-within .Select-value,
+.expanding-address-dropdown:focus-within .Select-clear-zone {
+    opacity: 1;
+}
+
+.expanding-address-dropdown .Select-placeholder {
+    padding-left: 10px !important;
+}
+
+.expanding-address-dropdown .Select-value {
+    padding-right: 35px !important;
+}
+
+.expanding-address-dropdown .Select-clear-zone {
+    position: absolute !important;
+    right: 0 !important;
+    width: 30px !important;
+    color: #636efa !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.expanding-address-dropdown .Select-arrow-zone {
+    display: none !important;
+}
+
+.expanding-address-dropdown .Select-menu-outer {
+    top: 100% !important;
+    margin-top: 2px !important;
+    border: 1px solid #ccc !important;
+    z-index: 2000 !important;
+    background: white !important;
+    width: 350px !important;
+}

@@ -1,0 +1,51 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+      args:
+        HOST_USER: ${USER}
+    image: dashboard:latest
+    container_name: dashboard
+    volumes:
+      - .:/home/dev/dashboards
+      - /home/dev/dashboards/.venv
+      - ./.git:/home/dev/dashboards/.git
+      - aws:/home/dev/.aws
+      - ssh:/home/dev/.ssh
+      - gnupg:/home/dev/.gnupg
+      - ~/.vscode-server:/home/dev/.vscode-server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    tty: true
+    stdin_open: true
+    environment:
+      - HOST_USER=${USER}
+      - AWS_DEFAULT_REGION=us-east-2
+      - ENV=local
+      - DASHBOARD_CONTEXT=local
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    memswap_limit: 6G
+    ports:
+      - "8081:8081"
+
+volumes:
+  aws:
+    driver: local
+    driver_opts:
+      device: ~/.aws
+      o: bind
+      type: none
+  ssh:
+    driver: local
+    driver_opts:
+      device: ~/.ssh
+      o: bind
+      type: none
+  gnupg:
+    driver: local
