@@ -1,0 +1,3 @@
+"""
+Cornsacks dashboard package.
+"""

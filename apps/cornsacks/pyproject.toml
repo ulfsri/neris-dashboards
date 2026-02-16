@@ -1,0 +1,30 @@
+[project]
+name = "cornsacks"
+version = "0.1.0"
+description = "Cornsacks Dash Application"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+  "dash>=2.15",
+  "dash-bootstrap-components>=1.6",
+  "plotly>=5.20",
+  "pandas>=2.2",
+  "SQLAlchemy>=2.0",
+  "dash-enterprise-libraries>=1.7",
+  "gunicorn>=21.2",
+  "flask-caching>=2.0",
+  "dash-leaflet>=1.0.15",
+  "neris-dash-common",
+  "arcgis>=2.4.1",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.sources]
+neris-dash-common = { workspace = true }
+
+[dependency-groups]
+dev = ["pytest", "ruff", "mypy"]

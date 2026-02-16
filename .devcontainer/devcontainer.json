@@ -1,0 +1,21 @@
+{
+    "name": "dashboards",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "dev",
+    "runServices": ["dev"],
+    "overrideCommand": false,
+    "workspaceFolder": "/home/dev/dashboards",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "mhutchie.git-graph",
+                "charliermarsh.ruff",
+                "mechatroner.rainbow-csv"
+            ]
+        }
+    },
+    "remoteUser": "dev",
+    "updateRemoteUserUID": true
+}

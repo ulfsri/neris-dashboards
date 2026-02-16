@@ -1,0 +1,19 @@
+[project]
+name = "neris-dash-common"
+version = "0.1.0"
+description = "Shared Dash components for NERIS dashboards"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "dash>=2.15",
+  "dash-bootstrap-components>=1.6",
+  "plotly>=5.20",
+  "pandas>=2.2",
+  "SQLAlchemy>=2.0",
+  "dash-enterprise-libraries>=1.7",
+  "duckdb>=1.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
