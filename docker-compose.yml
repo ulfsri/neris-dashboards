@@ -1,4 +1,10 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: dashboard-redis
+    ports:
+      - "6379:6379"
+
   dev:
     build:
       context: .
@@ -7,6 +13,8 @@ services:
         HOST_USER: ${USER}
     image: dashboard:latest
     container_name: dashboard
+    depends_on:
+      - redis
     volumes:
       - .:/home/dev/dashboards
       - /home/dev/dashboards/.venv
@@ -24,6 +32,10 @@ services:
       - AWS_DEFAULT_REGION=us-east-2
       - ENV=local
       - DASHBOARD_CONTEXT=local
+      - REDIS_URL=redis://redis:6379
+      - FLASK_SECRET_KEY=dev-secret-key
+      # TODO: find a better way of bypassing JWT in local dev
+      - NERIS_AUTH_MOCK_IDS=["FD24027077", "FD24027214"]
     deploy:
       resources:
         limits:

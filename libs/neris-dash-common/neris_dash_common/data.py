@@ -9,7 +9,6 @@ import duckdb
 import json
 import os
 import threading
-from pathlib import Path
 
 from abc import ABC
 from pandas import (
@@ -18,12 +17,13 @@ from pandas import (
     read_sql,
     notna,
 )
-from typing import Any, List, Literal, Dict
+from pathlib import Path
 from sqlalchemy import create_engine, URL, Engine
+from typing import Any, List, Literal, Dict
 
 
 from neris_dash_common.aggregations import AggregateStatGroup
-from neris_dash_common.utils import _get_credentials
+from neris_dash_common.auth import get_auth_cache_value
 from neris_dash_common.filters import (
     FilterConfig,
     FilterType,
@@ -34,6 +34,8 @@ from neris_dash_common.time_series import (
     get_sql_expression,
     RollingWindow,
 )
+from neris_dash_common.utils import _get_credentials
+
 
 __all__ = [
     "initialize_data_sources",
@@ -278,16 +280,23 @@ class _DuckParquetRelationBase(ABC):
 
     def _apply_filters(self, filters: dict[str, Any]) -> "_DuckParquetRelationBase":
         """
-        Apply UI filters using the table's filter configurations.
+        Apply filters using the table's filter configurations.
 
-        Converts a dictionary of filter values (from UI) to SQL WHERE conditions
-        using the table's _filter_configs, then adds them to the query plan.
+        Converts a dictionary of filter key/value pairs into a list of SQL WHERE
+        conditions, then adds them to the query plan. For UI-sourced filters,
+        reads values from the provided filters dict. For cache-sourced filters
+        (e.g. auth restrictions), reads values directly from the Flask session,
+        keeping them invisible to and immutable by the client.
         """
         if not self._filter_configs:
             return self
 
         for filter_config in self._filter_configs:
-            filter_value: Any = filters.get(filter_config.filter_key)
+            if filter_config.source == "cache":
+                filter_value = get_auth_cache_value(filter_config.filter_key)
+            else:
+                filter_value = filters.get(filter_config.filter_key)
+
             if filter_value is None:
                 continue
 
@@ -300,6 +309,20 @@ class _DuckParquetRelationBase(ABC):
                 self.add_where(condition)
 
         return self
+
+    # @staticmethod
+    # def _get_cache_filter_value(filter_key: str) -> Any:
+    #     """Fetch a cache-sourced filter value from Redis via the auth cache.
+
+    #     Returns None gracefully when outside a request context, when
+    #     no session exists, or when the key is missing/expired in Redis.
+    #     """
+    #     try:
+    #         from neris_dash_common.auth import get_auth_cache_value
+
+    #         return get_auth_cache_value(filter_key)
+    #     except (RuntimeError, ImportError):
+    #         return None
 
     ##############################
     ##### Query plan methods

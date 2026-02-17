@@ -1,5 +1,6 @@
 # ruff hates wildcard imports it seems
 from .aggregations import *  # noqa: F403,F401
+from .auth import *  # noqa: F403,F401
 from .chart_transforms import *  # noqa: F403,F401
 from .components import *  # noqa: F403,F401
 from .crossfilters import *  # noqa: F403,F401

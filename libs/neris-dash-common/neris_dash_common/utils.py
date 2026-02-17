@@ -148,9 +148,11 @@ def get_cache_config(cache_timeout_seconds: int) -> dict:
     """
     redis_url = os.environ.get("REDIS_URL")
 
+    # Note: if we begin using Workspaces we should set this to a specific,
+    # non-prod DB number for development, to avoid clobbering production data
     if redis_url:
         return {
-            "CACHE_TYPE": "redis",
+            "CACHE_TYPE": "RedisCache",
             "CACHE_REDIS_URL": redis_url,
             "CACHE_DEFAULT_TIMEOUT": cache_timeout_seconds,
         }

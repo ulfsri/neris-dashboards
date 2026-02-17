@@ -7,6 +7,8 @@ import dash_leaflet as dl
 import dash_design_kit as ddk
 from tables import FILTER_REGISTRY
 from neris_dash_common import (
+    AuthError,
+    create_auth_error_layout,
     create_metric_card,
     create_last_updated_badge,
     create_action_button,
@@ -17,7 +19,7 @@ from neris_dash_common import (
     RollingWindow,
 )
 
-from config import BASEMAP_URL, MAX_MAP_POINTS
+from config import AUTH_MANAGER, BASEMAP_URL, MAX_MAP_POINTS
 
 
 def create_filter_panel():
@@ -193,11 +195,16 @@ def create_filter_panel():
 
 def create_app_layout():
     """Create the main app layout using DDK components."""
+    try:
+        AUTH_MANAGER.get_and_cache_permissions()
+    except AuthError as e:
+        return create_auth_error_layout(e.message)
+
     return [
         dcc.Store(
             id="filters",
             storage_type="session",
-            data=FILTER_REGISTRY.get_all_defaults(),
+            data=FILTER_REGISTRY.get_ui_defaults(),
         ),
         dcc.Store(
             id="dept-layers-show-store",

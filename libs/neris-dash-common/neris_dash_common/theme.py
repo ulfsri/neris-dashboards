@@ -1,5 +1,6 @@
 """Style and theme configuration for NERIS dashboards."""
 
+from dash import html
 from typing import List, Dict, Any
 
 # TODO these shouldn't need to be externalized
@@ -16,6 +17,7 @@ __all__ = [
     "DEFAULT_SPINNER_METRIC",
     "FF_COLOR",
     "NONFF_COLOR",
+    "create_auth_error_layout",
 ]
 
 
@@ -130,3 +132,38 @@ DEFAULT_SPINNER_METRIC: Dict[str, Any] = {
 
 FF_COLOR = "#c95d26"
 NONFF_COLOR = "#21b8a4"
+
+
+##############################
+##### Error layouts
+##############################
+def create_auth_error_layout(message: str) -> list:
+    """Create a user-facing error layout for authorization failures.
+
+    Returns a component list compatible with ddk.App() wrapping.
+    """
+    return [
+        html.Div(
+            [
+                html.H2(
+                    "Authorization Required",
+                    style={"marginBottom": "20px", "color": "#333"},
+                ),
+                html.P(
+                    message,
+                    style={"color": "#dc3545", "fontSize": "1.1rem"},
+                ),
+                html.Hr(),
+                html.P(
+                    "Please contact your administrator if this problem persists.",
+                    style={"color": "#6c757d", "fontSize": "0.9rem"},
+                ),
+            ],
+            style={
+                "textAlign": "center",
+                "padding": "60px 40px",
+                "maxWidth": "600px",
+                "margin": "80px auto",
+            },
+        )
+    ]
