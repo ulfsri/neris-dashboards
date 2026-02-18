@@ -1,16 +1,8 @@
 """
 Authentication and authorization for NERIS dashboards.
 
-AuthManager handles:
-- JWT parsing from embedded dashboard requests
-- Permission fetching from the NERIS API (environment-aware URL)
-- Caching permissions in Redis, keyed by a per-session ID stored
-  in Flask's signed cookie (only the session ID lives client-side)
-- A dev/mock bypass for local testing without a real JWT
-
-The data layer reads cached permissions via get_auth_cache_value(),
-which is called automatically by _DuckParquetRelationBase._get_cache_filter_value()
-for any FilterConfig with source="cache".
+Centers on AuthManager, which handles caching permissions from the NERIS API
+in Redis for use in data layers.
 """
 
 import json
@@ -94,8 +86,13 @@ def get_auth_cache_value(cache_key: str) -> Any | None:
     """Read a cached auth value from Redis for the current session.
 
     This is the read-side counterpart to AuthManager.get_and_cache_permissions().
-    Returns None when outside a request context, when no session exists,
-    or when the key is missing/expired in Redis.
+
+    Returns None in two distinct situations:
+      - Cache miss: outside a request context, no session, or key missing/expired in Redis.
+      - ALL access: key exists but was stored as null (API returned the ALL sentinel),
+        meaning the data layer should apply no filter.
+    Callers that need to distinguish the two cases must check key existence in Redis
+    directly (as get_and_cache_permissions does for its short-circuit).
     """
     if not has_request_context():
         return None
@@ -141,9 +138,14 @@ class AuthManager:
         if not has_request_context():
             raise AuthError("Not in a request context")
 
-        # Already cached for this session: short-circuit
-        if (cached := get_auth_cache_value(self.cache_key)) is not None:
-            return cached
+        # Already cached for this session: short-circuit.
+        # Existence check (not value check) is intentional — None could result
+        # from two distinct cases: cache miss or ALL access.
+        sid = session.get(_SESSION_ID_KEY)
+        if sid and _get_redis().exists(f"{_REDIS_PREFIX}:{sid}:{self.cache_key}"):
+            return get_auth_cache_value(
+                self.cache_key
+            )  # may legitimately return None (ALL access)
 
         # Dev/mock bypass: skip JWT + API, use mock IDs from env var
         context = os.environ.get("DASHBOARD_CONTEXT", "local")
@@ -162,10 +164,11 @@ class AuthManager:
             user_sub = payload.get("sub")
             access_token = payload.get("access_token")
         except Exception as e:
-            # REVIEW: not sure if it's a bad idea to expose this?
+            # REVIEW: not sure if it's bad security-wise or a bad look to expose this?
+            # Should maybe just log the error and present an all-purpose auth error page?
             raise AuthError(f"Failed to parse JWT: {e}")
 
-        # Fetch permissions from the NERIS API
+        # Fetch from the NERIS API
         base_url = _get_api_base_url()
         api_path = self.api_path_template.format(user_sub=user_sub)
         url = f"{base_url}{api_path}"
@@ -182,6 +185,8 @@ class AuthManager:
 
         # Process and cache
         result = self.permissions_processor(response.json())
+        if isinstance(result, list) and "ALL" in result:
+            result = None
         self._store_in_redis(result)
         return result
 
