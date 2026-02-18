@@ -310,20 +310,6 @@ class _DuckParquetRelationBase(ABC):
 
         return self
 
-    # @staticmethod
-    # def _get_cache_filter_value(filter_key: str) -> Any:
-    #     """Fetch a cache-sourced filter value from Redis via the auth cache.
-
-    #     Returns None gracefully when outside a request context, when
-    #     no session exists, or when the key is missing/expired in Redis.
-    #     """
-    #     try:
-    #         from neris_dash_common.auth import get_auth_cache_value
-
-    #         return get_auth_cache_value(filter_key)
-    #     except (RuntimeError, ImportError):
-    #         return None
-
     ##############################
     ##### Query plan methods
     ##############################

@@ -17,9 +17,21 @@ from neris_dash_common import (
     TOOLTIPS,
     CARD_HEADER_STYLE,
     RollingWindow,
+    AuthManager,
 )
 
-from config import AUTH_MANAGER, BASEMAP_URL, MAX_MAP_POINTS
+from config import (
+    BASEMAP_URL,
+    MAX_MAP_POINTS,
+    CACHE_FILTER_KEY,
+    PERMISSIONS_PROCESSOR,
+)
+
+
+auth_manager = AuthManager(
+    cache_key=CACHE_FILTER_KEY,
+    permissions_processor=PERMISSIONS_PROCESSOR,
+)
 
 
 def create_filter_panel():
@@ -196,7 +208,7 @@ def create_filter_panel():
 def create_app_layout():
     """Create the main app layout using DDK components."""
     try:
-        AUTH_MANAGER.get_and_cache_permissions()
+        auth_manager.get_and_cache_permissions()
     except AuthError as e:
         return create_auth_error_layout(e.message)
 

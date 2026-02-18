@@ -28,6 +28,7 @@ __all__ = [
     "AuthError",
     "get_auth_cache_value",
     "extract_incident_read_neris_ids",
+    "extract_neris_ids_by_action_resource",
 ]
 
 
@@ -112,8 +113,6 @@ def get_auth_cache_value(cache_key: str) -> Any | None:
 ##############################
 ##### AuthManager
 ##############################
-
-
 class AuthError(Exception):
     """Raised when authentication or authorization fails."""
 
@@ -123,14 +122,7 @@ class AuthError(Exception):
 
 
 class AuthManager:
-    """Manages JWT-based auth and permission caching for a NERIS dashboard.
-
-    An app requiring auth creates an AuthManager instance, configured with:
-    - a cache key
-    - a permissions processor
-    - an API endpoint path
-    - a cache TTL
-    """
+    """Manager for embed-based auth and permission caching for a NERIS dashboard."""
 
     def __init__(
         self,
@@ -145,12 +137,7 @@ class AuthManager:
         self.cache_ttl = cache_ttl
 
     def get_and_cache_permissions(self) -> Any:
-        """Parse JWT, fetch permissions from the API, cache in Redis.
-
-        Returns the processed permissions value (e.g. a list of NERIS IDs).
-        Raises AuthError if any step fails — callers should catch this and
-        render an appropriate error layout.
-        """
+        """Parse JWT, fetch permissions from the API, and cache in Redis on session id key."""
         if not has_request_context():
             raise AuthError("Not in a request context")
 
@@ -201,6 +188,7 @@ class AuthManager:
     def _store_in_redis(self, value: Any) -> None:
         """Store a permissions value in Redis, keyed by a fresh session ID."""
         redis_client = _get_redis()
+
         sid = secrets.token_urlsafe(32)
         session[_SESSION_ID_KEY] = sid
 
@@ -214,9 +202,26 @@ class AuthManager:
 ##############################
 ##### Permissions processors
 ##############################
-def extract_incident_read_neris_ids(permissions_response: dict) -> list[str]:
-    """Extract NERIS IDs for which the user has READ on INCIDENT.
+def extract_neris_ids_by_action_resource(
+    permissions: dict, resource: str = "INCIDENT", action: str = "READ"
+) -> list[str]:
+    """Extract NERIS IDs for which the user has a specific action on a resource from a UserPermissionsResponse from the NERIS API."""
+    readable_entities = set()
 
-    TODO: Implement actual parsing logic once API response structure is confirmed.
-    """
-    return permissions_response.get("neris_ids", [])
+    entities = permissions.get("entities", {})
+
+    for entity_id, perms in entities.items():
+        resources = perms.get("resources", {})
+        actions = resources.get(resource, [])
+
+        if action in actions:
+            readable_entities.add(entity_id)
+
+    return sorted(list(readable_entities))
+
+
+def extract_incident_read_neris_ids(permissions: dict) -> list[str]:
+    """Extract NERIS IDs for which the user has READ on INCIDENT from a UserPermissionsResponse from the NERIS API."""
+    return extract_neris_ids_by_action_resource(
+        permissions, resource="INCIDENT", action="READ"
+    )
