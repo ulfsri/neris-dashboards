@@ -3,15 +3,14 @@ Main application file for the cornsacks dashboard.
 """
 
 import os
-
 import dash_design_kit as ddk
-from flask_caching import Cache
 
 from dash import Dash
+from flask_caching import Cache
 from layout import create_app_layout
+
 from callbacks import register_all_callbacks
 from config import CACHE_TIMEOUT_SECONDS
-
 from neris_dash_common import get_cache_config, initialize_data_sources
 
 

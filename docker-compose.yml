@@ -34,8 +34,7 @@ services:
       - DASHBOARD_CONTEXT=local
       - REDIS_URL=redis://redis:6379
       - FLASK_SECRET_KEY=dev-secret-key
-      # TODO: find a better way of bypassing JWT in local dev
-      - NERIS_AUTH_MOCK_IDS=["FD24027077", "FD24027214"]
+      - NERIS_AUTH_MOCK_IDS=["FD24027077", "FD24027214"] # these are for auth filters
     deploy:
       resources:
         limits:

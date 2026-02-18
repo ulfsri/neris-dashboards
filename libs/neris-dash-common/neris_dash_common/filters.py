@@ -4,10 +4,10 @@ Generic filter configuration and SQL condition building.
 Provides a declarative way to define filters and generate SQL WHERE clauses.
 """
 
+from dash import html
 from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
-from dash import html
 from .utils import format_title_case
 
 __all__ = [
