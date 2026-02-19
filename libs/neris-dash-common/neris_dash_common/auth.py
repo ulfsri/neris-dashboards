@@ -12,7 +12,7 @@ import redis
 import requests
 import secrets
 
-from flask import has_request_context, request, session
+from flask import has_request_context, request, session, abort
 from typing import Any, Callable
 
 __all__ = [
@@ -48,8 +48,7 @@ def _get_redis() -> redis.StrictRedis:
     global _redis_client
     if _redis_client is None:
         redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
-        if redis_url:
-            _redis_client = redis.StrictRedis.from_url(redis_url)
+        _redis_client = redis.StrictRedis.from_url(redis_url)
     return _redis_client
 
 
@@ -62,10 +61,12 @@ def _extract_token_from_request() -> str | None:
         return None
 
     auth_header = request.headers.get("Authorization", "")
+    if not auth_header:
+        auth_header = request.headers.get("authorization", "")
 
     # Authorization header
-    if auth_header.startswith("Bearer "):
-        return auth_header[7:]
+    if token := auth_header.lstrip("Bearer "):
+        return token
     # Query parameter fallback (not needed I think)
     elif token := request.args.get("token"):
         return token
@@ -164,9 +165,8 @@ class AuthManager:
             user_sub = payload.get("sub")
             access_token = payload.get("access_token")
         except Exception as e:
-            # REVIEW: not sure if it's bad security-wise or a bad look to expose this?
-            # Should maybe just log the error and present an all-purpose auth error page?
-            raise AuthError(f"Failed to parse JWT: {e}")
+            print(f"Aborting. JWT parsing failed: {e}")
+            abort(401, description="Authentication failed")
 
         # Fetch from the NERIS API
         base_url = _get_api_base_url()
@@ -181,7 +181,8 @@ class AuthManager:
             )
             response.raise_for_status()
         except requests.RequestException as exc:
-            raise AuthError(f"Failed to fetch permissions: {exc}")
+            print(f"Aborting. Failed to fetch permissions: {exc}")
+            abort(401, description="Authentication failed")
 
         # Process and cache
         result = self.permissions_processor(response.json())
