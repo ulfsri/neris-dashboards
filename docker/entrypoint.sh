@@ -8,12 +8,12 @@ fi
 
 # Set up environment configuration directory
 echo "Setting up environment configuration..."
-mkdir -p /home/dev/.config/dashboards
+mkdir -p /home/dev/.config/dashboard
 
 # Set permissions
 chown -R dev:dev /home/dev/.config
 chmod 755 /home/dev/.config
-chmod 755 /home/dev/.config/dashboards
+chmod 755 /home/dev/.config/dashboard
 
 # Ensure AWS region is set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-2}
@@ -43,9 +43,9 @@ mkdir -p /home/dev/.ssh && \
   echo 'dev:dev' | chpasswd
 
 # Create SSH key for dev user if one doesn't exist
-if [[ ! -f /home/dev/.ssh/dashboards_dev_env.pub ]]; then
+if [[ ! -f /home/dev/.ssh/dashboard_dev_env.pub ]]; then
   echo "Creating new SSH key..."
-  su -l dev -c 'ssh-keygen -b 4096 -t rsa -f /home/dev/.ssh/dashboards_dev_env -q -N ""'
+  su -l dev -c 'ssh-keygen -b 4096 -t rsa -f /home/dev/.ssh/dashboard_dev_env -q -N ""'
   chown -R dev:dev /home/dev/.ssh
 else
   echo "Using existing SSH key."

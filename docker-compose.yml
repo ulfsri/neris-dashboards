@@ -1,12 +1,20 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: dashboard-redis
+    ports:
+      - "6379:6380"
+
   dev:
     build:
       context: .
       dockerfile: docker/dev.Dockerfile
       args:
         HOST_USER: ${USER}
-    image: dashboards:latest
-    container_name: dev
+    image: dashboard:latest
+    container_name: dashboard
+    depends_on:
+      - redis
     volumes:
       - .:/home/dev/dashboards
       - /home/dev/dashboards/.venv
@@ -24,6 +32,9 @@ services:
       - AWS_DEFAULT_REGION=us-east-2
       - ENV=local
       - DASHBOARD_CONTEXT=local
+      - REDIS_URL=redis://redis:6379
+      - FLASK_SECRET_KEY=dev-secret-key
+      - NERIS_AUTH_MOCK_IDS=["FD24027077", "FD24027214"] # these are for auth filters
     deploy:
       resources:
         limits:

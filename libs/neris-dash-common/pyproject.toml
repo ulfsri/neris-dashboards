@@ -12,6 +12,9 @@ dependencies = [
   "SQLAlchemy>=2.0",
   "dash-enterprise-libraries>=1.7",
   "duckdb>=1.0",
+  "PyJWT>=2.8",
+  "redis>=5.0",
+  "requests>=2.31",
 ]
 
 [build-system]

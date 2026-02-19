@@ -4,10 +4,10 @@ Generic filter configuration and SQL condition building.
 Provides a declarative way to define filters and generate SQL WHERE clauses.
 """
 
-from dataclasses import dataclass
-from typing import Any, Callable
-
 from dash import html
+from dataclasses import dataclass
+from typing import Any, Callable, Literal
+
 from .utils import format_title_case
 
 __all__ = [
@@ -76,6 +76,7 @@ class FilterConfig:
         display_formatter: Optional custom formatter for display values (defaults to str)
         exclude_from_display: If True, this filter won't be shown in filter state displays
         clearable: If False, this filter cannot be cleared by the clear all filters button (defaults to True)
+        source: Where the filter value comes from - "ui" for user interaction, "cache" for server-side auth
     """
 
     filter_key: str
@@ -85,6 +86,7 @@ class FilterConfig:
     display_formatter: Callable[[Any], str] | None = None
     exclude_from_display: bool = False
     clearable: bool = True
+    source: Literal["ui", "cache"] = "ui"
 
 
 class FilterRegistry:
@@ -232,6 +234,28 @@ class FilterRegistry:
             )
 
         return components
+
+    def get_ui_defaults(self) -> dict[str, Any]:
+        """Get default values for UI-sourced filters only.
+
+        Use this for client-side (dcc.Store) initialization. Server-side
+        cache-sourced filters are managed server-side and should not be in the
+        client store.
+        """
+        return self._get_defaults_with_filter(lambda config: config.source == "ui")
+
+    def get_cache_filter_keys(self) -> list[str]:
+        """Get list of filter keys be sourced from cache.
+
+        Returns filter keys for all filters marked with source='cache'.
+        These are typically auth/permission filters injected server-side.
+        """
+        cache_keys = []
+        for configs in self._groups.values():
+            for config in configs:
+                if config.source == "cache":
+                    cache_keys.append(config.filter_key)
+        return cache_keys
 
 
 ##############################

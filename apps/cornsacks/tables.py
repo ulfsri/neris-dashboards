@@ -37,6 +37,14 @@ hour_formatter = create_range_formatter(HOUR_ORDER, format_hour)
 FILTER_REGISTRY: Final[FilterRegistry] = FilterRegistry(
     {
         "incidents": [
+            FilterConfig(
+                "authorized_neris_ids",
+                "neris_id_dept",
+                "categorical_list",
+                source="cache",
+                exclude_from_display=True,
+                clearable=False,
+            ),
             FilterConfig("csst_hazard_only", "csst_hazard_flag", "boolean"),
             FilterConfig("electric_hazard_only", "electric_hazard_flag", "boolean"),
             FilterConfig("powergen_hazard_only", "powergen_hazard_flag", "boolean"),
