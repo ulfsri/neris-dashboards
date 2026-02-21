@@ -14,7 +14,7 @@ fi
 
 APP_PATH="$1"
 DE_APP_NAME="$2"
-PROJECT_ROOT="/home/dev/analytics"
+PROJECT_ROOT="/home/dev/dashboards"
 APP_DIR="$PROJECT_ROOT/$APP_PATH"
 
 echo "🚀 Deploying $APP_PATH to Dash Enterprise as '$DE_APP_NAME'"
@@ -27,7 +27,7 @@ uv build --package neris-dash-common --wheel --out-dir "$APP_DIR"
 # 2: Sync Dash Enterprise dependencies
 echo "🔄 Ensuring Dash Enterprise dependency is synced when this script is run..."
 cd "$PROJECT_ROOT"
-uv sync --group dash
+uv sync
 
 # 3: Generate requirements.txt with local wheels
 echo "📝 Generating requirements.txt..."
